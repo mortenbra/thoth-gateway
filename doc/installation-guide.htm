@@ -1,0 +1,385 @@
+<html>
+
+<head>
+
+<title>Thoth Gateway: Installation Guide</title>
+
+<link rel="stylesheet" href="thoth.css" type="text/css" /> 
+
+</head>
+
+
+<body>
+
+
+<h1>Thoth Gateway: Installation Guide</h1>
+
+<p>By <a href="http://ora-00001.blogspot.com/">Morten Braten</a></p>
+
+<img src="thoth-gateway-logo.jpg" />
+
+<p>Installing and configuring the <a href="readme.htm">Thoth Gateway</a> is done in a few easy steps:</p>
+
+<h3>System requirements</h3>
+
+<p>On the database server:</p>
+
+<ul>
+  <li>Oracle 10g or later, including Oracle XE (the Thoth Gateway can possibly work with earlier database versions, but has not been tested against them)</li>
+  <li>OWA toolkit version 10.1.2.0.6 or later</li>
+  <li>Apex 2.1 or later</li>
+</ul>
+
+<p>On the web server (can be the same physical machine as the database server, if desired, although for security reasons you may want to separate the two anyway):</p>
+
+<ul>
+  <li>Internet Information Server 6.0 or greater (see separate instructions below for IIS 7)</li>
+  <li>.NET Framework 3.5 runtime</li>
+  <li>ODP.NET 11.1 or later (<a href="#odp">see below</a>)</li>
+</ul>
+
+
+<a name="download"><h3>Step 0. Download the software</h3></a>
+
+<p>The software is available on the project's <a href="https://github.com/mortenbra/thoth-gateway/releases">releases page</a>. Download and unzip the file package.</p>
+
+<a name="iis"><h3>Step 1a. Configure IIS 6</h3></a>
+
+<ol>
+  <li><b>Note:</b> ASP.NET is disabled by default in IIS 6, so make sure it is enabled by going to the "Web Service Extensions" page in the IIS Manager and select "Allow" for the ASP.NET extension.</li>
+  <li>Copy the files and subfolders from the "install" folder into a new folder on the web server. This guide assumes that you will place the files and subfolders into a folder called "thoth" under the wwwroot folder (c:\inetpub\wwwroot\thoth). </li>
+  <li>Create a new website (or a virtual directory under the existing "Default web site") called "ThothGateway" (or whatever you like). Use the folder you created in the step above for the website (c:\inetpub\wwwroot\thoth).</li>
+  <li>Create a new virtual directory in the new website and name it "pls" (or whatever you would like to prefix the gateway URLs with). Use the corresponding subfolder (c:\inetpub\wwwroot\thoth\pls).</li>
+  <li>If you are using Application Express (and who isn't?), create a new virtual directory under the website. Call the virtual directory "i", map it to c:\inetpub\wwwroot\thoth\i\, and copy the "images" folder from the unzipped Apex installation set into this folder. This is similar to <a href="http://download.oracle.com/docs/cd/B32472_01/doc/install.300/b32468/post_inst.htm#CHDFJBFB">what you would do if using Apache</a> to serve the Apex images.</li>
+  <li>Your configuration should now look similar to the following: <br><img src="iis6-config-website.jpg" /></li>
+  <li>Configure ASP.NET to handle all requests, including nonexistent files:</li>
+    <ul>
+      <li>On the property page for the "pls" virtual directory, go to the "Virtual Directory" tab and click the "Configuration" button<br><img src="iis6-config-virtual-dir.jpg"/></li>
+      <li>Under "Wildcard Application maps", click "Insert"<br><img src="iis6-config-app-mappings-1.jpg"/></li>
+      <li>Select C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll and uncheck "Verify that file exists"<br><img src="iis6-config-app-mappings-2.jpg"/></li>
+      <li>You may want to remove the default application mappings that exist for various file types, as there will typically be no need for them if your web application is PL/SQL only</li>
+      <li>Under the "Directory Security" tab, under "Authentication and access control", click "Edit", and then make sure that "Enabled anonymous access" is checked, and that all the alternatives under "Authenticated access" are unchecked</li>
+      <li>Finally, go to the "Options" tab and uncheck "Enable session state" as there is no need for this (your PL/SQL application will handle session state)</li>
+    </ul>
+  <li>Configure web.config to make sure "PLSQLHttpModule" is added under the &lt;httpModules&gt; section</li>
+</ol>
+
+
+<a name="iis7"><h3>Step 1b. Configure IIS 7</h3></a>
+
+<ol>
+  <li>Copy the files and subfolders from the "install" folder into a new folder on the web server. This guide assumes that you will place the files and subfolders into a folder called "thoth" under the wwwroot folder (c:\inetpub\wwwroot\thoth). </li>
+  <li>Create a new website (or a virtual directory under the existing "Default web site") called "ThothGateway" (or whatever you like). Use the folder you created in the step above for the website (c:\inetpub\wwwroot\thoth).</li>
+  <li>Right-click the "pls" folder and select "Convert to application" to create a web application in this folder.</li>
+  <li>If you are using Application Express (and who isn't?), copy the "images" folder from the unzipped Apex installation set into the "i" folder. This is similar to <a href="http://download.oracle.com/docs/cd/B32472_01/doc/install.300/b32468/post_inst.htm#CHDFJBFB">what you would do if using Apache</a> to serve the Apex images.</li>
+  <li>Your configuration should now look similar to the following: <br><img src="iis7-config-website.jpg" /></li>
+  <li>If you are using the 32-bit version of the ODP.NET assemblies, you must enable 32-bit applications in the Application Pool: <br><img src="iis7-enable-32bit.jpg" /></li>
+  <li><b>Note:</b> One change from IIS6 to IIS7 is that the HTTP Modules (the Thoth Gateway is a HTTP Module that forwards all requests to the database) are no longer added under the &lt;system.Web/httpModules&gt; section, but instead in the &lt;system.webServer/modules&gt; section. See <a href="http://learn.iis.net/page.aspx/508/wildcard-script-mapping-and-iis-7-integrated-pipeline/">this page</a> for details. The sample web.config file distributed with the Thoth Gateway includes the settings in both sections, but you may want to verify the settings if you have trouble getting the Thoth Gateway to pick up the web requests.</li>
+</pre>
+
+
+</ol>
+
+
+<a name="odp"><h3>Step 2. Install ODP.NET on the web server</h3></a>
+
+<ol>
+ <li>Download <a href="http://www.oracle.com/technology/software/htdocs/distlic.html?url=/technology/software/tech/windows/odpnet/utilsoft.html">ODAC1110621Xcopy.zip</a> from Oracle
+ <li>Unzip and run 
+   <pre>
+
+     install.bat odp.net20 c:\oracle odac
+   </pre>
+
+    on the command line
+
+  <li>Add the install directory and install directory's bin subdirectory to the system PATH environment variable before any other Oracle directories. If you used the command above, the folders to add to the PATH variable would be c:\oracle and c:\oracle\bin.
+  
+</ol>
+
+<p><b>Note:</b> The steps above are recommended when you have a "clean" web server dedicated to running your PL/SQL web applications. If you have a mixed environment, perhaps with other versions of the Oracle drivers already installed for use by other applications, take a look at my blog post about <a href="http://ora-00001.blogspot.com/2010/01/odpnet-minimal-non-intrusive-install.html">ODP.NET minimal, non-intrusive install</a>, which keeps everything self-contained.</p>
+
+<a name="dad"><h3>Step 3. DAD configuration</h3></a>
+
+<p>Database Access Descriptors (DADs) are configured using the web.config file. New DADs are added using instances of the &lt;dad&gt; tag under the &lt;thoth&gt; configuration section.</p>
+
+<p>The following table lists the parameters that are supported. Most parameters work as they do in mod_plsql; refer to the that product's documentation for details. Parameters in <em>italic</em> do not exist in mod_plsql and are given an additional explanation below.</p>
+
+<table width="90%" border="1">
+  <tr>
+    <td><strong>Parameter Name</strong></td>
+    <td><strong>Description</strong></td>
+    <td><strong>Possible Values</strong></td>
+    <td><strong>Default Value</strong></td>
+  </tr>
+  <tr>
+    <td>ErrorStyle</td>
+    <td>&nbsp;</td>
+    <td>None | DebugStyle</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>DatabaseConnectString</td>
+    <td>Connection string, use the Easy Connect (EZ Connect) syntax.</td>
+    <td>//host:port/servicename<br><br><i>or</i><br><br>(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)<br>(Host=hostname)(Port=portnumber))<br>(CONNECT_DATA=(SERVICE_NAME=servicename))) <br><br><i>(all on one line, without any line breaks)</i></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>DatabaseConnectStringAttributes</em></td>
+    <td>Additional connection string attributes. Allows you to fine-tune the connection settings. This is also where you can add proxy authentication username and password, if desired.</td>
+    <td>See the ODP.NET documentation.</td>
+    <td>Enlist=false</td>
+  </tr>
+  <tr>
+    <td>DatabaseUserName</td>
+    <td>The database user name that the gateway uses to connect to the database. When running Apex applications, this is usually "apex_public_user". The gateway also supports a couple of reserved words; if any of these are specified as username, the actual value in the database connection string will be replaced with the client's Windows username (assumes that IIS has been set up with Integrated Windows Authentication).</td>
+    <td><i>actual database user name</i> | LOGON_USER | LOGON_USER_NO_DOMAIN</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>DatabasePassword</td>
+    <td>The database user's password. Leave blank if setting up proxy authentication.</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>NLSLanguage</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>AMERICAN_AMERICA.AL32UTF8</td>
+  </tr>
+  <tr>
+    <td><em>IANACharset</em></td>
+    <td>The client's character set. Leave this at the default value.</td>
+    <td>&nbsp;</td>
+    <td>UTF-8</td>
+  </tr>
+  <tr>
+    <td>ExclusionList</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>InclusionList</em></td>
+    <td>List of procedure (or procedure prefixes) allowed to execute through the gateway, separated by spaces. The values are treated as wildcards (do not add any wildcard characters). If a value is specified for this parameter, the ExclusionList parameter is ignored and the InclusionList takes precedence.</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>RequestValidationFunction</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>DefaultPage</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>DocumentPath</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>DocumentProcedure</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>DocumentTableName</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>DocumentMaxUploadSize</em></td>
+    <td>Maximum allowed size, in bytes, for each uploaded file. Note that IIS has its own configuration for maximum file size in web.config, which you also need to set.</td>
+    <td>size in bytes</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <td><em>DocumentFilePath</em></td>
+    <td>If this parameter is set, uploaded files will be saved to the specified directory, instead of being inserted into the table specifed by DocumentTableName.</td>
+    <td>Path to directory on web server, without trailing backslash</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>DocumentXdbPath</em></td>
+    <td>If this parameter is set, uploaded files will be saved to the specified folder in the XDB repository in the database, instead of being inserted into the table specifed by DocumentTableName.</td>
+    <td>Path to XDB folder, without trailing slash</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>PathAlias</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>PathAliasProcedure</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>PathAliasIncludeParameters</em></td>
+    <td>Normally, the PathAliasProcedure takes one argument called p_path of type VARCHAR2. If this parameter is set to true, the PathAliasProcedure must accept two additional parameters, called name_array and value_array, both which must be array types (typically OWA_UTIL.VC_ARR). The gateway will pass any querystring and form parameter names and values to these arrays, similar to the way flexible parameter passing works.</td>
+    <td>true | false</td>
+    <td>false</td>
+  </tr>
+  <tr>
+    <td>BeforeProcedure</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>AfterProcedure</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>BindBucketLengths</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>4,20,100,400</td>
+  </tr>
+  <tr>
+    <td>BindBucketWidths</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>32,128,1024,2048,4000,8000,16000,32767</td>
+  </tr>
+  <tr>
+    <td>FetchBufferSize</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>200</td>
+  </tr>
+  <tr>
+    <td><em>InvocationProtocol</em></td>
+    <td>The default value is "CGI" and this invokes the PL/SQL procedure in the normal manner, using parameters supplied by a GET or POST request. If the value is "SOAP", then parameters must be passed to the procedure using a SOAP envelope, and the response is also returned in a SOAP envelope. The WSDL document for a PL/SQL package (or subroutine) can be retrieved by appending "?wsdl" to the end of the package (or subroutine) name in the URL.</td>
+    <td>CGI | SOAP</td>
+    <td>CGI</td>
+  </tr>
+  <tr>
+    <td><em>SoapDateFormat</em></td>
+    <td>This is used to set the database session NLS date format when the gateway receives a SOAP request. You can adjust this parameter if your SOAP clients are sending dates with an UTC time indicator or offset.</td>
+    <td>Oracle date format mask</td>
+    <td>YYYY-MM-DD"T"HH24:MI:SS</td>
+  </tr>
+  <tr>
+    <td><em>SoapFaultDetailTag</em></td>
+    <td>When the SoapFaultStyle parameter is set to "UserFriendly" and a database exception is raised with raise_application_error with a user-defined error code in the range of 20000 to 20999, the error detail returned to the client is extracted from the Oracle error message using the specified tag name.</td>
+    <td>tag name</td>
+    <td>errinfo</td>
+  </tr>
+  <tr>
+    <td><em>SoapFaultStringTag</em></td>
+    <td>When the SoapFaultStyle parameter is set to "UserFriendly" and a database exception is raised with raise_application_error with a user-defined error code in the range of 20000 to 20999, the error string returned to the client is extracted from the Oracle error message using the specified tag name.<br><br>Example, using default tag names: raise_application_error (-20000, '&lt;usrerr&gt;This is the SOAP Fault String&lt;/usrerr&gt;&lt;errinfo&gt;This is the SOAP Fault Detail&lt;/errinfo&gt; this is additional text, not returned to client'); </td>
+    <td>tag name</td>
+    <td>usrerr</td>
+  </tr>
+  <tr>
+    <td><em>SoapFaultStyle</em></td>
+    <td>Determines the level of information returned in the SOAP Fault element if an exception is raised during a SOAP request. Use "Generic" to return a generic error message (without any specific error codes), "UserFriendly" to return a customized message (see SoapFaultStringTag and SoapFaultDetailTag), and "Raw" to return the Oracle error code and text/call stack.</td>
+    <td>Generic | UserFriendly | Raw</td>
+    <td>Generic</td>
+  </tr>
+  <tr>
+    <td><em>SoapTargetNamespace</em></td>
+    <td>This is the namespace that is used when generating the WSDL for PL/SQL packages and subroutines.</td>
+    <td>&nbsp;</td>
+    <td>http://tempuri.org/myservice</td>
+  </tr>
+  <tr>
+    <td><em>XdbAlias</em></td>
+    <td>Specifies a virtual path in the URL that initiates resource retrieval from the XDB repository in the database. For example, if this parameter is set to "xdb", then the following URL will attempt retrieve a resource from XDB: "/pls/dadname/xdb/somefolder/somefile.txt".</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td><em>XdbAliasRoot</em></td>
+    <td>An optional XDB folder path (without the trailing slash) that is prefixed to the user-entered path/resource name. For example, if the XdbAlias is "xdb" and the XdbAliasRoot is "/public/files", and the user enters "/pls/dadname/xdb/somefolder/somefile.txt", the request is resolved to "/public/files/somefolder/somefile.txt". If this parameter is left blank, the user can access the full XDB repository without limits (but still subject to XDB ACLs defined for the database user specified in the DAD).</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+
+</table>
+
+
+<p>A typical configuration for Apex usage would look like this:</p>
+
+<pre>
+	&lt;thoth&gt;
+		&lt;dad name="apex"&gt;
+			&lt;params&gt;
+				&lt;param name="ErrorStyle" value="DebugStyle" /&gt;
+				&lt;param name="DatabaseConnectString" value="//127.0.0.1:1521/xe" /&gt;
+				&lt;param name="DatabaseUserName" value="apex_public_user" /&gt;
+				&lt;param name="DatabasePassword" value="apex_public_user_password" /&gt;
+				&lt;param name="NLSLanguage" value="AMERICAN_AMERICA.AL32UTF8" /&gt;
+				&lt;param name="IANACharset" value="UTF-8" /&gt;
+				&lt;param name="RequestValidationFunction" value="wwv_flow_epg_include_modules.authorize" /&gt;
+				&lt;param name="DefaultPage" value="apex" /&gt;
+				&lt;param name="DocumentPath" value="docs" /&gt;
+				&lt;param name="DocumentProcedure" value="wwv_flow_file_mgr.process_download" /&gt;
+				&lt;param name="DocumentTableName" value="wwv_flow_file_objects$" /&gt;
+				&lt;param name="PathAlias" value="" /&gt;
+				&lt;param name="PathAliasProcedure" value="" /&gt;
+			&lt;/params&gt;
+		&lt;/dad&gt;
+	&lt;/thoth&gt;
+
+</pre>
+
+<h3>Verify that your installation works</h3>
+
+<ol>
+  <li>Go to <a href="http://yourservername/pls/apex/apex">http://yourservername/pls/apex/apex</a> and verify the output.</li>
+  <li>As long as you get any output generated from the database, ie the Apex engine and/or the OWA toolkit, the gateway is working.</li>
+  <li>If you get a 404 error page, or an error page produced by the gateway (when the ErrorStyle parameter is set to "DebugStyle"), then check out the troubleshooting tips below.</li>
+</ol>
+
+
+<h3>Troubleshooting</h3>
+
+<ol>
+  <li>Verify the DAD configuration in the web.config file, particularly your database connection info.</li>
+  <li>Set the ErrorStyle parameter to "DebugStyle" to view detailed error info on-screen.</li>
+  <li>Set the log4net level to "DEBUG", and then check the gateway log file.</li>
+  <li>Check the Windows Event Log for any ASP.NET errors.</li>
+  <li>Report any bugs via <a href="https://code.google.com/p/thoth-gateway/issues/">https://code.google.com/p/thoth-gateway/issues/</a>. Remember to include any relevant error messages and/or log files.</li>
+</ol>
+
+
+<h3>Notes for production deployment</h3>
+
+<p>Some things to remember when deploying the Thoth Gateway to a production web server:</p>
+
+<ul>
+  <li>Make sure the DAD configuration parameter "ErrorStyle" is set up with a value of "None" (rather than "DebugStyle"), otherwise you will expose valuable information to any attacker</li>
+  <li>Set the InclusionList or ExclusionList parameter, and/or implement a RequestValidationProcedure, to restrict the PL/SQL procedures that can be called via the gateway</li>
+  <li>Set the log4net log level to "ERROR" or "WARN" (rather than "DEBUG"), otherwise the log file will grow quickly</li>
+  <li>Set "debug" to "false" in the web.config "compilation" node, otherwise you will incur a performance hit.</li>
+  <li>Consider enabling content expiration on the images ("/i") virtual folder for improved performance (in IIS6, this is done via Properties, "HTTP Headers", "Enable content expiration").
+  <li>Consider setting the executionTimeout attribute of the httpRuntime tag in the web.config file to a higher value if you have pages that can take several minutes to render. See <a href="http://msdn.microsoft.com/en-us/library/e1f13641.aspx">MSDN Library</a> for details.
+  <li>Secure IIS according to best practices. You might want to encrypt the web.config file to protect the database passwords. See <a href="http://stackoverflow.com/questions/1075245/encrypting-web-config">this page</a> for details.</li>
+  <li>Last but not least, secure the Oracle database according to best practices.</li>
+</ul>
+
+<p>Note that running the Thoth Gateway does not affect or interfere with any existing gateway configurations (including the Embedded PL/SQL Gateway, mod_plsql and the Apex Listener/ORDS).</p>
+
+<hr>
+
+<a href="http://code.google.com/p/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2015, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
+
+</body>
+
+</html>

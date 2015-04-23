@@ -1,0 +1,139 @@
+<html>
+
+<head>
+
+<title>Thoth Gateway: PL/SQL Gateway Module for Microsoft IIS - Release Notes</title>
+
+<link rel="stylesheet" href="thoth.css" type="text/css" /> 
+
+</head>
+
+
+<body>
+
+
+<h1>Release Notes</h1>
+
+<h3>Version 1.4.1</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Support Apex 5.0 static file feature:</b> Pass value of PathAlias from DAD configuration to CGI varibable PATH_ALIAS, to allow Apex 5 to generate correct static file links.</li>
+  <li><b>BUG FIX: Support Apex 5.0 response headers:</b> Handle HTTP response headers without space between header name and header value, as emitted by Apex 5.0.</li>
+</ul>
+
+<h3>Version 1.4.0</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Simplify installation by using the ODP.NET Managed driver:</b> The Thoth Gateway now uses the ODP.NET Managed Driver, instead of the OCI (unmanaged) driver. The managed driver is just a single assembly, no other Oracle client or networking libraries are required to connect to an Oracle database.</li>
+</ul>
+
+
+<h3>Version 1.3.8</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Ignore X-ORACLE-IGNORE headers:</b> The OWA toolkit emits multiple "X-ORACLE-IGNORE" headers for each HTTP response. These are now ignored by the Thoth Gateway and not sent back to the client.</li>
+  <li><b>ENHANCEMENT: Handle "HttpOnly" cookies:</b> The Thoth Gateway now sets the HttpOnly property on cookies if the "Set-Cookie" HTTP header includes this attribute.</li>
+  <li><b>BUG FIX: Redirect to absolute https URL was not handled correctly:</b> Redirects using the "Location" HTTP header with a HTTPS address resulted in an invalid conversion to a relative URL.</li>
+</ul>
+
+<h3>Version 1.3.7</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Source code now available:</b> The source code for the Thoth Gateway is now available! See the "source" directory for the Visual Studio project and C# source files, and the "license.txt" file in the "doc" directory for license details.
+  <li><b>ENHANCEMENT: Set CGI values to identify server:</b> Some top-level (non-DAD-specific) configuration parameters have been added: CGIServerSoftware, CGIPLSQLGateway, CGIGatewayIVersion and CGIApexListenerVersion (corresponding to the variable names SERVER_SOFTWARE, PLSQL_GATEWAY, GATEWAY_IVERSION and APEX_LISTENER_VERSION). These can be used to override the values set by the gateway when initializing the CGI environment.</li>
+  <li><b>BUG FIX: Set CGI value for REQUEST_PROTOCOL:</b> Since Apex 4.2, the Apex engine relies on the "REQUEST_PROTOCOL" value from the CGI environment. By default, IIS does not populate this value, so the Thoth Gateway now has to do this explicitly. See <a href="https://code.google.com/p/thoth-gateway/issues/detail?id=8">https://code.google.com/p/thoth-gateway/issues/detail?id=8</a> for more details.</li>
+  <li><b>DEPRECATED: Removed support for OWA_SEC.GET_CLIENT_IP:</b> The OWA_UTIL.IP_ADDRESS data type does not support IPv6 (at least as of Oracle 11gR2), and OWA_SEC.GET_CLIENT_IP is not used in a typical Apex application. The Thoth Gateway therefore no longer tries to set the OWA.IP_ADDRESS record on each request. The IP address of the request can still be retrieved using OWA_UTIL.GET_CGI_ENV('REMOTE_ADDR').</li>
+  <li><b>DEPRECATED: Removed support for OWA.SET_USER_ID / OWA.SET_PASSWORD:</b> Prior to version 1.3.7, the Thoth Gateway would call these OWA procedures during initialization of each request, and pass the HTTP Basic Authentication username and password (if any) to OWA, allowing these values to be referenced in OWA authorization checks. This is not required for typical Apex applications (and is not done by Oracle's own Apex Listener, either), and has therefore been removed from the Thoth Gateway.</li>
+</ul>
+
+<h3>Version 1.3.6</h3>
+
+<ul>
+  <li><b>BUG FIX: Value of the CGI environment variable LOGON_USER was empty on IIS 7 running in Integrated pipeline mode:</b> This was due to a <a href="http://learn.iis.net/page.aspx/381/aspnet-20-breaking-changes-on-iis/">breaking change</a> on IIS 7. The Thoth Gateway now hooks into the PostAuthenticate event, rather than the BeginRequest event, in order for information about the current user to be available when using Windows Integrated Authentication.</li>
+</ul>
+
+
+<h3>Version 1.3.5</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Hide server banner:</b> A new top-level (non-DAD-specific) configuration parameter, HideServerBanner, has been added. If this is set to true (the default is false), the server will not emit the response server headers that identify the server as IIS powered by ASP.NET. This can improve security in certain situations, and reduces the response size. Requires IIS 7 with "integrated pipeline" mode.</li>
+  <li><b>ENHANCEMENT: Set SOAP date format:</b> A new DAD-specific configuration parameter, SoapDateFormat, has been added. The default is YYYY-MM-DD"T"HH24:MI:SS. This is used to set the database session NLS date format when the gateway receives a SOAP request. You can adjust this parameter if your SOAP clients are sending dates with an UTC time indicator or offset.</li>
+  <li><b>BUG FIX: Don't upload empty files:</b> The gateway incorrectly uploaded files even from an empty file browse field (when the user submitted a form without having selected a file).</li>
+  <li><b>BUG FIX: Handle responses with HTTP headers but no HTTP body:</b> An ArgumentOutOfRangeException was thrown if the request included (just) HTTP headers without any body.</li>
+</ul>
+
+
+<h3>Version 1.3.4</h3>
+
+<ul>
+  <li><b>BUG FIX: Handle missing accept-encoding header:</b> Dynamic content compression did not correctly handle clients with missing accept-encoding header.</li>
+</ul>
+
+
+<h3>Version 1.3.3</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Serve static content from gateway folder:</b> A new top-level (non-DAD-specific) configuration parameter, ServeStaticContent, has been added. If this is set to true (the default is false), the gateway will check if the requested URL maps to a physical file, and if so, will serve up this file instead of connecting to the database.</li>
+  <li><b>ENHANCEMENT: Compress dynamic content:</b> A new top-level (non-DAD-specific) configuration parameter, CompressDynamicContent, has been added. If this is set to true (the default is false), <i>and</i> the client (browser) signals that it can accept compressed content, the gateway will compress the generated output (using GZip or Deflate, depending on the client's stated preference). This reduces network traffic at the cost of more CPU usage on the server.</li>
+</ul>
+
+
+<h3>Version 1.3.2</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: SOAP Faults:</b> A database exception during a SOAP request now creates a SOAP Fault response that contains the database error message (see the SoapErrorStyle configuration parameter), instead of the normal 404 error (or debug error page).</li>
+</ul>
+
+<h3>Version 1.3.1</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Performance optimization:</b> The main PL/SQL procedure call issued by the gateway now also includes the call to check if the response is a file download (which used to be a separate PL/SQL call). This reduces the total number of database calls, thereby improving performance.</li>
+</ul>
+
+
+<h3>Version 1.3</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Ignore additional request parameters:</b> Certain tools and frameworks may dynamically add additional parameters to a request, which causes the corresponding PL/SQL call to fail, since these parameters are not defined in the procedure signature. As of this version, the gateway will now retry the call after dropping (ignoring) any parameters that cannot be found in the Oracle data dictionary for the procedure being called.</li>
+  <li><b>ENHANCEMENT: Support for Oracle proxy authentication (and Single Sign On) via dynamic username substitution:</b> Oracle proxy authentication, combined with Integrated Windows Authentication in IIS, allows you to pass the end-user's identity from the client to the database session (so the function USER will return the end-user's Windows username, with no login required). This is useful in an intranet scenario where users are defined in an Active Directory domain and use Internet Explorer to access the PL/SQL web application.</li>
+  <li><b>BUG FIX: Issue with parsing client IP address:</b> Added exception handling to prevent error when parsing client IP address with invalid format.</li>
+</ul>
+
+
+<h3>Version 1.2.1</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Set ODP.NET connection string attributes:</b> Added option to specify additional connection string attributes in the DAD configuration.</li>
+  <li><b>BUG FIX: Content-Length:</b> Fixed an issue where the content-length header would be incorrectly set for non-AL32UTF8 databases if the page contained multibyte characters.</li>
+</ul>
+
+<h3>Version 1.2</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Improved SOAP Web Services:</b> All functions in a PL/SQL package are now exposed through a single service endpoint (instead of invidual service endpoints for each function).</li>
+  <li><b>ENHANCEMENT: Upload files to file system:</b> Upload files directly to file system instead of database table.</li>
+  <li><b>ENHANCEMENT: Support for XDB:</b> Upload and download files to/from XDB repository.</li>
+</ul>
+
+
+<h3>Version 1.1</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Automatic SOAP Web Services:</b> Publish PL/SQL functions as SOAP Web Services</li>
+</ul>
+
+
+<h3>Version 1.0</h3>
+
+<ul>
+  <li>Initial release</li>
+</ul>
+
+
+<hr>
+
+<a href="https://github.com/mortenbra/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2015, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
+
+</body>
+
+</html>
