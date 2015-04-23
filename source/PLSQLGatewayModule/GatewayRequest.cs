@@ -329,6 +329,10 @@ namespace PLSQLGatewayModule
             OwaProcedure owaProc = new OwaProcedure();
 
             owaProc.CheckForDownload = true;
+            owaProc.BeforeProc = DadConfig.BeforeProcedure;
+            owaProc.AfterProc = DadConfig.AfterProcedure;
+            owaProc.RequestValidationFunction = DadConfig.RequestValidationFunction;
+            owaProc.IsSoapRequest = IsSoapRequest;
 
             if (IsFlexibleParams)
             {
@@ -340,6 +344,9 @@ namespace PLSQLGatewayModule
             {
                 // path aliasing (forward URL to PathAlias procedure)
                 owaProc.MainProc = DadConfig.PathAliasProcedure;
+
+                // no request validation needed/wanted for PathAliasProcedure
+                owaProc.RequestValidationFunction = "";
 
                 if (DadConfig.PathAliasIncludeParameters)
                 {
@@ -359,7 +366,6 @@ namespace PLSQLGatewayModule
                 // download procedure via DocumentPath folder (no parameters, procedure is expected to identify file using get_cgi_env)
                 // see http://download.oracle.com/docs/cd/B15897_01/web.1012/b14010/concept.htm#i1010535
                 owaProc.MainProc = DadConfig.DocumentProcedure;
-
             }
             else if (IsXdbAlias)
             {
@@ -396,11 +402,6 @@ namespace PLSQLGatewayModule
                 }
 
             }
-
-            owaProc.BeforeProc = DadConfig.BeforeProcedure;
-            owaProc.AfterProc = DadConfig.AfterProcedure;
-            owaProc.RequestValidationFunction = DadConfig.RequestValidationFunction;
-            owaProc.IsSoapRequest = IsSoapRequest;
 
             OwaProc = owaProc;
 

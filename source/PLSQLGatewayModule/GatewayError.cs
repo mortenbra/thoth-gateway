@@ -12,7 +12,7 @@ namespace PLSQLGatewayModule
     public static class GatewayError
     {
 
-        private const string PRODUCT_URL = "http://code.google.com/p/thoth-gateway/";
+        private const string PRODUCT_URL = "https://github.com/mortenbra/thoth-gateway";
 
         /// <summary>
         /// returns the version string for the assembly
