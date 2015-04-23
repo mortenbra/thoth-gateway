@@ -5,8 +5,6 @@ Thoth Gateway: PL/SQL Gateway Module for Microsoft IIS, similar to mod_plsql and
 
 <p>By <a href="http://ora-00001.blogspot.com/">Morten Braten</a></p>
 
-<img src="thoth-gateway-logo.jpg" />
-
 <h3>What is the Thoth Gateway?</h3>
 
 <blockquote><i>In ancient Egyptian mythology, Thoth was an ibis-headed god who mediated between good and evil, making sure neither had a decisive victory over the other. He also served as scribe of the gods, credited with the invention of writing and alphabets. He is associated with the Eye of Horus because he restored it after a battle between Set and Horus in which the latter god's eye was torn out.</i></blockquote>
