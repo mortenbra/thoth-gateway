@@ -127,9 +127,16 @@ namespace PLSQLGatewayModule
       // http://servername/PLSQLGatewayModule/dadname/[schema.][package.]procedure?parameter1=xxx&parameter2=yyy
 
       string serverName = app.Request.ServerVariables["HTTP_HOST"];
+      string requestContentType = app.Request.ContentType;
+      string requestBody = "";
+      string requestPath = app.Request.FilePath.Substring(1);
       string soapAction = app.Request.Headers["SOAPAction"];
 
-      string requestPath = app.Request.FilePath.Substring(1);
+      if (requestContentType.ToLower() != "application/x-www-form-urlencoded")
+      {
+          requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.Default).ReadToEnd();
+          requestBody = HttpUtility.UrlDecode(requestBody);
+      }
 
       GatewayRequest gReq = new GatewayRequest(serverName, app.Request.HttpMethod, app.Request.FilePath, app.Request.RawUrl, soapAction);
 
@@ -166,13 +173,13 @@ namespace PLSQLGatewayModule
           else if (gReq.IsSoapRequest)
           {
               logger.Debug("Invocation protocol is SOAP");
-              string requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.Default).ReadToEnd();
-              requestBody = HttpUtility.UrlDecode(requestBody);
-              gReq.AddRequestParametersForSOAP(gReq.ProcName, requestBody);
+              string requestBodyForSOAP = new StreamReader(app.Request.InputStream, System.Text.Encoding.Default).ReadToEnd();
+              requestBodyForSOAP = HttpUtility.UrlDecode(requestBodyForSOAP);
+              gReq.AddRequestParametersForSOAP(gReq.ProcName, requestBodyForSOAP);
           }
           else
           {
-              gReq.AddRequestParameters(app.Request.QueryString, app.Request.Form, app.Request.Files);
+              gReq.AddRequestParameters(app.Request.QueryString, app.Request.Form, app.Request.Files, requestBody);
           }
           
           gReq.AddCGIEnvironment(ctx.Request.ServerVariables);

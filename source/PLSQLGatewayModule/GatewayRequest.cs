@@ -39,7 +39,7 @@ namespace PLSQLGatewayModule
 
         }
 
-        public void AddRequestParameters(NameValueCollection requestQueryString, NameValueCollection requestForm, HttpFileCollection requestFiles)
+        public void AddRequestParameters(NameValueCollection requestQueryString, NameValueCollection requestForm, HttpFileCollection requestFiles, string requestBody)
         {
 
             // combine the querystring, form, and uploaded files into one parameter collection
@@ -140,6 +140,13 @@ namespace PLSQLGatewayModule
 
             }
 
+            // pass the request body if it contains data (ie the data is not "form urlencoded" but passed typically as JSON)
+            if (requestBody.Length > 0)
+            {
+                NameValuePair nvpX = new NameValuePair(StringUtil.RemoveSpecialCharacters("p_request_body"), requestBody);
+                _requestParams.Add(nvpX);
+            }
+            
             // the parameters have been set up, now build the database call
             BuildOwaProc();
 
