@@ -14,10 +14,16 @@
 
 <h1>Release Notes</h1>
 
+<h3>Version 1.4.2</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Pass HTTP request body to procedure:</b> When the request Content-Type is not the default "application/x-www-form-urlencoded", the gateway will pass the full HTTP request body as a CLOB to a parameter (which must be) called "p_request_body".</li>
+</ul>
+
 <h3>Version 1.4.1</h3>
 
 <ul>
-  <li><b>ENHANCEMENT: Support Apex 5.0 static file feature:</b> Pass value of PathAlias from DAD configuration to CGI varibable PATH_ALIAS, to allow Apex 5 to generate correct static file links.</li>
+  <li><b>ENHANCEMENT: Support Apex 5.0 static file feature:</b> Pass value of PathAlias from DAD configuration to CGI variable PATH_ALIAS, to allow Apex 5 to generate correct static file links.</li>
   <li><b>BUG FIX: Support Apex 5.0 response headers:</b> Handle HTTP response headers without space between header name and header value, as emitted by Apex 5.0.</li>
 </ul>
 
@@ -132,7 +138,7 @@
 
 <hr>
 
-<a href="https://github.com/mortenbra/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2015, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
+<a href="https://github.com/mortenbra/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2018, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
 
 </body>
 
