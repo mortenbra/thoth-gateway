@@ -11,7 +11,7 @@ Thoth Gateway: PL/SQL Gateway Module for Microsoft IIS, similar to mod_plsql and
 
 <p>The Thoth Gateway is a bridge between an Oracle database and a Microsoft web server. It is an open-source alternative to <a href="http://download.oracle.com/docs/cd/B15897_01/web.1012/b14010/concept.htm">mod_plsql</a> and the <a href="http://download.oracle.com/docs/cd/B19306_01/appdev.102/b14258/d_epg.htm">Embedded PL/SQL Gateway</a>, allowing you to develop <a href="http://download.oracle.com/docs/cd/B28359_01/appdev.111/b28424/adfns_web.htm">PL/SQL web applications</a> using the PL/SQL Web Toolkit (OWA) and Oracle Application Express (Apex), and serve the content using Microsoft's Internet Information Server (IIS).</p>
 
-<img src="http://thoth-gateway.googlecode.com/files/thoth-gateway-architecture.jpg" />
+<img src="https://github.com/mortenbra/thoth-gateway/blob/master/doc/thoth-gateway-logo.jpg?raw=true" />
 
 <h3>Why use the Thoth Gateway? What's wrong with mod_plsql or ORDS?</h3>
 
@@ -22,7 +22,7 @@ Thoth Gateway: PL/SQL Gateway Module for Microsoft IIS, similar to mod_plsql and
 
 <p>Thoth implements the core features of mod_plsql and the Embedded PL/SQL Gateway. Most importantly, it allows you to run <a href="http://apex.oracle.com/">Oracle Application Express (Apex)</a> applications.</p>
 
-<img src="http://thoth-gateway.googlecode.com/files/apex-running-on-iis-using-thoth.jpg"/>
+<img src="https://github.com/mortenbra/thoth-gateway/blob/master/doc/apex-running-on-iis7-using-thoth.jpg?raw=true"/>
 
 <ul>
   <li>Web page content generation (HTML, XML, etc.) via the PL/SQL Web Toolkit (OWA)</li>
