@@ -134,7 +134,8 @@ namespace PLSQLGatewayModule
 
       if (requestContentType.ToLower() != "application/x-www-form-urlencoded")
       {
-          requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.Default).ReadToEnd();
+          //requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.UTF8).ReadToEnd();
+          requestBody = new StreamReader(app.Request.InputStream, app.Request.ContentEncoding).ReadToEnd();
           requestBody = HttpUtility.UrlDecode(requestBody);
       }
 

@@ -481,7 +481,7 @@ namespace PLSQLGatewayModule
         {
             string aliasValue = "";
             
-            int startIndex = thePath.IndexOf(procName) + procName.Length + 1;
+            int startIndex = thePath.IndexOf("/" + procName + "/") + procName.Length + 2;
             if (thePath.Length >= startIndex)
             {
                 aliasValue = thePath.Substring(startIndex);
@@ -490,6 +490,8 @@ namespace PLSQLGatewayModule
             {
                 aliasValue = "";
             }
+
+            logger.Debug("Parsed path from PathAlias " + procName + ": " + aliasValue);
 
             return aliasValue;
 
