@@ -14,6 +14,14 @@
 
 <h1>Release Notes</h1>
 
+<h3>Version 1.4.3</h3>
+
+<ul>
+  <li><b>ENHANCEMENT: Upgrade to latest ODP.NET Managed Driver:</b> The gateway is now compiled against the latest (18.3) ODP.NET Managed Driver. Among other this, this version of the Managed Driver supports Oracle Advanced Security Option (ASO) encryption; without this certain operations such as APEX file uploads would cause "OracleInternal.Network.NetworkException: ORA-12537: Network Session: End of file" errors. When upgrading to Thoth Gateway v1.4.3 or later, please make sure you also copy the Oracle.ManagedDataAccess.dll file in addition to the PLSQLGatewayModule.dll file to make sure you have the correct library.</li>
+  <li><b>BUG FIX: Fix bug in PathAlias handling:</b> The gateway did not correctly parse the URL passed to the PathAliasProcedure when the DAD name contained a substring equal to the PathAlias.</li>
+  <li><b>BUG FIX: Fix encoding issue when passing HTTP request body to procedure:</b> The gateway now uses the request encoding to read the request body, instead of the default system encoding.</li>
+</ul>
+
 <h3>Version 1.4.2</h3>
 
 <ul>
@@ -138,7 +146,7 @@
 
 <hr>
 
-<a href="https://github.com/mortenbra/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2018, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
+<a href="https://github.com/mortenbra/thoth-gateway">Thoth Gateway Module</a>, Copyright &copy; 2009-2019, <a href="http://ora-00001.blogspot.com">Morten Braten</a>
 
 </body>
 
