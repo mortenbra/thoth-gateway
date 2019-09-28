@@ -257,19 +257,19 @@ namespace PLSQLGatewayModule
 
               if (!success && ora.GetLastErrorText().IndexOf("PLS-00306:") > -1)
               {
-                  logger.Error("Call failed: " + ora.GetLastErrorText());
+                  logger.Warn("Call failed: " + ora.GetLastErrorText());
                   logger.Debug("Wrong number or types of arguments in call. Will retry call after looking up parameter metadata in data dictionary.");
                   success = ora.ExecuteMainProc(gReq.OwaProc, gReq.RequestParameters, true, gReq.ProcName);
               }
               else if (!success && ora.GetLastErrorText().IndexOf("ORA-01460:") > -1)
               {
-                  logger.Error("Call failed: " + ora.GetLastErrorText());
+                  logger.Warn("Call failed: " + ora.GetLastErrorText());
                   logger.Debug("Unimplemented or unreasonable conversion requested. Will retry call after looking up parameter metadata in data dictionary.");
                   success = ora.ExecuteMainProc(gReq.OwaProc, gReq.RequestParameters, true, gReq.ProcName);
               }
               else if (!success && ora.GetLastErrorText().IndexOf("ORA-00201:") > -1)
               {
-                  logger.Error("Call failed: " + ora.GetLastErrorText());
+                  logger.Warn("Call failed: " + ora.GetLastErrorText());
                   logger.Debug("Identifier must be declared. Will retry call after looking up parameter metadata in data dictionary.");
                   success = ora.ExecuteMainProc(gReq.OwaProc, gReq.RequestParameters, true, gReq.ProcName);
               }
