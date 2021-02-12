@@ -132,7 +132,7 @@ namespace PLSQLGatewayModule
       string requestPath = app.Request.FilePath.Substring(1);
       string soapAction = app.Request.Headers["SOAPAction"];
 
-      if (requestContentType.ToLower() != "application/x-www-form-urlencoded")
+      if (!requestContentType.ToLower().StartsWith("application/x-www-form-urlencoded"))
       {
           //requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.UTF8).ReadToEnd();
           requestBody = new StreamReader(app.Request.InputStream, app.Request.ContentEncoding).ReadToEnd();
