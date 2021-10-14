@@ -133,7 +133,9 @@ namespace PLSQLGatewayModule
 
             logger.Debug("Request content type = " + requestContentType);
 
-            if ((requestContentType.Length > 0) && (!requestContentType.ToLower().StartsWith("application/x-www-form-urlencoded")) && (!requestContentType.ToLower().StartsWith("multipart/form-data")))
+            //  TODO: if ((requestContentType.Length > 0) && (!requestContentType.ToLower().StartsWith("application/x-www-form-urlencoded")) && (!requestContentType.ToLower().StartsWith("multipart/form-data")))
+
+            if (requestContentType.ToLower() != "application/x-www-form-urlencoded")
             {
                 logger.Debug("Request content type is specified but is not application/x-www-form-urlencoded or multipart/form-data, will pass p_request_body as extra parameter to main proc");
                 //requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.UTF8).ReadToEnd();
