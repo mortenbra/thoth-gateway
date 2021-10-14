@@ -131,20 +131,35 @@ namespace PLSQLGatewayModule
             if (hasHeader)
             {
                 headerEndPosition = firstFragment.IndexOf("" + '\n' + '\n');
+
+                logger.Debug("Response has headers, headerEndPosition = " + headerEndPosition.ToString());
+
                 // MBR 14.07.2011: handle response with headers, but no body...
                 if (headerEndPosition == -1)
                 {
                     headerFragment = firstFragment;
                     firstFragmentMinusHeaders = "";
+                    logger.Debug("Response has only headers, no body content");
+                    logger.Debug(headerFragment);
                 }
                 else
                 {
                     headerEndPosition = headerEndPosition + 2;
-                    firstFragmentMinusHeaders = firstFragment.Substring(headerEndPosition);
-                    headerFragment = firstFragment.Substring(0, headerEndPosition);
+                    // MBR 13.10.2021: added some defensive code
+                    if (headerEndPosition <= firstFragment.Length) {
+                      firstFragmentMinusHeaders = firstFragment.Substring(headerEndPosition);
+                      headerFragment = firstFragment.Substring(0, headerEndPosition);
+                    }
+                    else
+                    {
+                        logger.Warn("Calculated length of header is larger than actual header size, treating all response as content");
+                        headerFragment = "";
+                        firstFragmentMinusHeaders = firstFragment;
+                        ContentType = "text/html";
+                    }
                 }
 
-                //logger.Debug("Response has headers, headerEndPosition = " + headerEndPosition.ToString());
+                
                 //logger.Debug("headerFragment = " + headerFragment);
 
             }
@@ -174,9 +189,9 @@ namespace PLSQLGatewayModule
                 else if (s.StartsWith("Status:", StringComparison.OrdinalIgnoreCase))
                 {
                     string statusLine = s.Substring(7).TrimStart(null);
+                    //logger.Debug("StatusLine = " + statusLine);
                     StatusCode = int.Parse(statusLine.Split(' ')[0]);
-                    StatusDescription = statusLine.Substring(StatusCode.ToString().Length + 1);
-                    //Status = statusLine;
+                    //logger.Debug("StatusCode = " + StatusCode.ToString());
                 }
                 else if (s.StartsWith("WWW-Authenticate:", StringComparison.OrdinalIgnoreCase))
                 {
@@ -249,7 +264,14 @@ namespace PLSQLGatewayModule
                 else if (s.Length > 0)
                 {
                     // get other headers as-is
-                    _headers.Add(new NameValuePair(s.Substring(0, s.IndexOf(":")), s.Substring(s.IndexOf(":") + 1).TrimStart(null)));
+                    if (s.Contains(":"))
+                    {
+                      _headers.Add(new NameValuePair(s.Substring(0, s.IndexOf(":")), s.Substring(s.IndexOf(":") + 1).TrimStart(null)));
+                    }
+                    else
+                    {
+                        logger.Warn("Name/value separator not found in header string: " + s);
+                    }
 
                 }
 

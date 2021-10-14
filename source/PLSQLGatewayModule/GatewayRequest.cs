@@ -31,7 +31,7 @@ namespace PLSQLGatewayModule
 
             if (logger.IsInfoEnabled)
             {
-                logger.Info("Request: " + OriginalRequest);
+                logger.Info("====> REQUEST: " + OriginalRequest);
             }
 
             // accept the URL request and parse out the dad and database procedure call from it

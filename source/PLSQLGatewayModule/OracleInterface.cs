@@ -517,6 +517,8 @@ namespace PLSQLGatewayModule
           string documentFilePath = _dadConfig.DocumentFilePath;
           string documentXdbPath = _dadConfig.DocumentXdbPath;
 
+          string mimeType = "";
+
           for (int i = 0; i < files.Count; i++)
 			{
 
@@ -596,12 +598,18 @@ namespace PLSQLGatewayModule
                       byte[] fileData = new byte[f.InputStream.Length];
                       f.InputStream.Read(fileData, 0, System.Convert.ToInt32(f.InputStream.Length));
 
+                      // use the mime type as defined on the server (see IIS or website settings) instead of the mime type submitted by the client
+                      mimeType = System.Web.MimeMapping.GetMimeMapping(files[i].UniqueFileName);
+
+                      logger.Debug("MIME type from request: " + f.ContentType);
+                      logger.Debug("MIME type from file name: " + mimeType);
+
                       string sql = "insert into " + _dadConfig.DocumentTableName + " (name, mime_type, doc_size, dad_charset, last_updated, content_type, blob_content) values (:p_name, :p_mime_type, :p_doc_size, :p_dad_charset, sysdate, 'BLOB', :p_blob_content )";
 
                       OracleCommand cmd = new OracleCommand(sql, _conn);
 
                       OracleParameter p1 = cmd.Parameters.Add("p_name", OracleDbType.Varchar2, files[i].UniqueFileName, ParameterDirection.Input);
-                      OracleParameter p2 = cmd.Parameters.Add("p_mime_type", OracleDbType.Varchar2, f.ContentType, ParameterDirection.Input);
+                      OracleParameter p2 = cmd.Parameters.Add("p_mime_type", OracleDbType.Varchar2, mimeType, ParameterDirection.Input);
                       OracleParameter p3 = cmd.Parameters.Add("p_doc_size", OracleDbType.Int32, f.InputStream.Length, ParameterDirection.Input);
                       OracleParameter p4 = cmd.Parameters.Add("p_dad_charset", OracleDbType.Varchar2, _dadConfig.NLSCharset, ParameterDirection.Input);
                       OracleParameter p5 = cmd.Parameters.Add("p_blob_content", OracleDbType.Blob, fileData, ParameterDirection.Input);
