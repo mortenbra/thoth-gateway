@@ -133,9 +133,7 @@ namespace PLSQLGatewayModule
 
             logger.Debug("Request content type = " + requestContentType);
 
-            //  TODO: if ((requestContentType.Length > 0) && (!requestContentType.ToLower().StartsWith("application/x-www-form-urlencoded")) && (!requestContentType.ToLower().StartsWith("multipart/form-data")))
-
-            if (requestContentType.ToLower() != "application/x-www-form-urlencoded")
+            if ((requestContentType.Length > 0) && (!requestContentType.ToLower().StartsWith("application/x-www-form-urlencoded")) && (!requestContentType.ToLower().StartsWith("multipart/form-data")))
             {
                 logger.Debug("Request content type is specified but is not application/x-www-form-urlencoded or multipart/form-data, will pass p_request_body as extra parameter to main proc");
                 //requestBody = new StreamReader(app.Request.InputStream, System.Text.Encoding.UTF8).ReadToEnd();
@@ -258,7 +256,7 @@ namespace PLSQLGatewayModule
                 else
                 {
                     // MBR 13.10.2021: always use "describeProc" to look up procedure metadata
-                    // TODO: add a configuration parameter to toggle this behavior (?), if so, then also add a toggle to force refreshing the metadata cache if initial call fails?
+                    // TODO: add a configuration parameter to toggle this behavior, and/or a toggle to force refreshing the metadata cache if initial call fails
                     //success = ora.ExecuteMainProc(gReq.OwaProc, gReq.RequestParameters, false, gReq.ProcName);
                     success = ora.ExecuteMainProc(gReq.OwaProc, gReq.RequestParameters, true, gReq.ProcName);
 
@@ -357,7 +355,8 @@ namespace PLSQLGatewayModule
 
                 logger.Warn("Request (" + requestPath + ") not valid, returning 404...");
 
-                if (gReq.DadConfig.ErrorStyle == "DebugStyle")
+                // note that DadConfig may be null if the request did not map to any defined DAD
+                if (gReq.DadConfig != null && gReq.DadConfig.ErrorStyle == "DebugStyle")
                 {
                     ctx.Response.Write(GatewayError.GetInvalidRequestDebugPage(requestPath, gReq.DadConfig));
                 }
